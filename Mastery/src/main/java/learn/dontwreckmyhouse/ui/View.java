@@ -1,6 +1,9 @@
 package learn.dontwreckmyhouse.ui;
 
+import learn.dontwreckmyhouse.models.Host;
+import learn.dontwreckmyhouse.models.Reservation;
 import org.springframework.stereotype.Component;
+import java.util.List;
 
 @Component
 public class View {
@@ -19,9 +22,42 @@ public class View {
             min = Math.min(min, option.getValue());
             max = Math.max(max, option.getValue());
         }
-        String message = String.format("Select [%s-%s]: ", min, max - 1);
+        String message = String.format("Select [%s-%s]: ", min, max);
         return Menu.fromValue(io.readInt(message, min, max));
     }
+
+    public String getState() {
+        return io.readRequiredString("State abbreviation: ");
+    }
+
+    public String chooseHost(List<Host> hosts) {
+        if (hosts.size() == 0) {
+            io.println("No hosts found.");
+            return null;
+        }
+        int index = 1;
+        for (Host h : hosts.stream().limit(25).toList()) {
+            io.printf("%s: %s, %s %s %s%n", index++, h.getHostCity(), h.getHostState(), h.getHostEmail(), h.getHostLastName());
+        }
+        index--;
+        if (hosts.size() > 25) {
+            io.println("More than 25 hosts found, showing first 25.");
+        }
+        io.println("0: Exit");
+        String message = String.format("Select a host by their index [0-%s]: ", index);
+        index = io.readInt(message, 0, index);
+        if (index <= 0) {
+            return null;
+        }
+        return hosts.get(index - 1).getHostId();
+    }
+
+    public void enterToContinue() {
+        io.readString("Press [Enter] to continue.");
+    }
+
+
+    //displays
 
     public void displayHeader(String message) {
         io.println("");
@@ -32,5 +68,19 @@ public class View {
     public void displayException(Exception ex) {
         displayHeader("A critical error occurred:");
         io.println(ex.getMessage());
+    }
+
+    public void displayReservations(List<Reservation> reservations) {
+        if (reservations.size() == 0) {
+            io.println("No reservations for this host.");
+        }
+        for (Reservation r : reservations) {
+            io.printf("%s: %s - %s, %s, $%s%n",
+                    r.getReservationId(),
+                    r.getStart(),
+                    r.getEnd(),
+                    r.getGuestId(),
+                    r.getTotal());
+        }
     }
 }

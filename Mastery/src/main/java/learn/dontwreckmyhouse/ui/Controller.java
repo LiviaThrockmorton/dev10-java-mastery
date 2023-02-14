@@ -4,7 +4,11 @@ import learn.dontwreckmyhouse.data.DataException;
 import learn.dontwreckmyhouse.domain.GuestService;
 import learn.dontwreckmyhouse.domain.HostService;
 import learn.dontwreckmyhouse.domain.ReservationService;
+import learn.dontwreckmyhouse.models.Host;
+import learn.dontwreckmyhouse.models.Reservation;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class Controller {
@@ -43,7 +47,16 @@ public class Controller {
         } while (option != Menu.EXIT);
     }
 
-    private void viewReservations() {
+    private void viewReservations() throws DataException {
+        view.displayHeader(Menu.VIEW.getTitle());
+        String initials = view.getState();
+        List<Host> hosts = hostService.findByState(initials);
+        String hostId = view.chooseHost(hosts);
+        if (hostId == null) {return;}
+        List<Reservation> reservations = reservationService.findByHost(hostId);
+        view.displayHeader("Reservations");
+        view.displayReservations(reservations);
+        view.enterToContinue();
     }
 
     private void makeReservation() {
