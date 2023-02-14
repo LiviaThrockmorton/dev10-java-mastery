@@ -4,18 +4,37 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class Reservation {
-    private String reservationId;
+    private Host host;
+    private Guest guest;
+
+    private int reservationId;
     private LocalDate start;
     private LocalDate end;
     private String hostId;
-    private String guestId;
+    private int guestId;
     private BigDecimal total;
 
-    public String getReservationId() {
+    public Host getHost() {
+        return host;
+    }
+
+    public void setHost(Host host) {
+        this.host = host;
+    }
+
+    public Guest getGuest() {
+        return guest;
+    }
+
+    public void setGuest(Guest guest) {
+        this.guest = guest;
+    }
+
+    public int getReservationId() {
         return reservationId;
     }
 
-    public void setReservationId(String reservationId) {
+    public void setReservationId(int reservationId) {
         this.reservationId = reservationId;
     }
 
@@ -43,11 +62,11 @@ public class Reservation {
         this.hostId = hostId;
     }
 
-    public String getGuestId() {
+    public int getGuestId() {
         return guestId;
     }
 
-    public void setGuestId(String guestId) {
+    public void setGuestId(int guestId) {
         this.guestId = guestId;
     }
 

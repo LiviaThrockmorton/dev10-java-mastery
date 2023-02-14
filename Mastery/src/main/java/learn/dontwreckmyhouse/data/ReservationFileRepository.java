@@ -63,14 +63,11 @@ public class ReservationFileRepository implements ReservationRepository {
 
     private Reservation deserialize(String[] fields) {
         Reservation result = new Reservation();
-        result.setReservationId(fields[0]);
+        result.setReservationId(Integer.parseInt(fields[0]));
         result.setStart(LocalDate.parse(fields[1]));
         result.setEnd(LocalDate.parse(fields[2]));
-        result.setGuestId(fields[3]);//if this doesn't work, the lines below might
+        result.setGuestId(Integer.parseInt(fields[3]));
         result.setTotal(BigDecimal.valueOf(Integer.parseInt(fields[4])));
-//        Guest guest = new Guest();
-//        guest.setGuestId(Integer.parseInt(fields[0]));
-//        result.setGuestId(guest.getGuestId);
         return result;
     }
 }
