@@ -30,4 +30,10 @@ class ReservationServiceTest {
         assertEquals(1, actual.size());
     }
 
+    @Test
+    void shouldNotFindFakeId() throws DataException {
+        String hostId = "lfjasld";
+        List<Reservation> actual = service.findByHost(hostId);
+        assertEquals(0, actual.size());
+    }
 }
