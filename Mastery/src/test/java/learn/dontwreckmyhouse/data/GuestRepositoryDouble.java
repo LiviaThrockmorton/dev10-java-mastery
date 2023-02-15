@@ -5,9 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GuestRepositoryDouble implements GuestRepository {
-
+    //creating dummy data
     public final static Guest GUEST = makeGuest();
-
     private static Guest makeGuest() {
         Guest guest = new Guest();
         guest.setGuestId(663);
@@ -18,10 +17,10 @@ public class GuestRepositoryDouble implements GuestRepository {
         guest.setGuestState("NC");
         return guest;
     }
-
     private final ArrayList<Guest> guests = new ArrayList<>();
     public GuestRepositoryDouble() {guests.add(GUEST);}
 
+    //implementing GuestRepository
     @Override
     public List<Guest> findAll() {
         return new ArrayList<>(guests);

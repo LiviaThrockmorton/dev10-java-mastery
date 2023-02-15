@@ -1,14 +1,16 @@
 package learn.dontwreckmyhouse.ui;
 
+import learn.dontwreckmyhouse.models.Guest;
 import learn.dontwreckmyhouse.models.Host;
 import learn.dontwreckmyhouse.models.Reservation;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
 import java.util.List;
 
 @Component
 public class View {
     private final ConsoleIO io;
-
     public View(ConsoleIO io) {
         this.io = io;
     }
@@ -28,6 +30,22 @@ public class View {
 
     public String getState() {
         return io.readRequiredString("State abbreviation: ");
+    }
+
+    public String getEmail() {return io.readRequiredString("Enter email: "); }
+
+    public LocalDate getDate() {return io.readLocalDate("Enter in MM/dd/yyyy format: "); }
+
+    public void enterToContinue() {
+        io.readString("Press [Enter] to continue.");
+    }
+
+    public int getGuest(List<Guest> guest) {
+        if (guest.size() == 0) {
+            io.println("No guests found.");
+            return 0;
+        }
+        return guest.get(0).getGuestId();
     }
 
     public String chooseHost(List<Host> hosts) {
@@ -52,8 +70,18 @@ public class View {
         return hosts.get(index - 1).getHostId();
     }
 
-    public void enterToContinue() {
-        io.readString("Press [Enter] to continue.");
+    //full methods for CRUD
+    public Reservation makeReservation() {
+       Reservation r = new Reservation();
+        displayHeader("Choose Start Date");
+        LocalDate start = getDate();
+        displayHeader("Choose End Date");
+        LocalDate end = getDate();
+       r.setStart(start);
+       r.setEnd(end);
+       //r.setGuestId();
+       //r.setHostId();
+       return r;
     }
 
 

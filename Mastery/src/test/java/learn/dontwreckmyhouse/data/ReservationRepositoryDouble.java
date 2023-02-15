@@ -8,9 +8,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ReservationRepositoryDouble implements ReservationRepository {
-
+    //making dummy data
     public final static Reservation RESERVATION = makeReservation();
-
     private static Reservation makeReservation() {
         Reservation reservation = new Reservation();
         reservation.setReservationId(1);
@@ -21,10 +20,10 @@ public class ReservationRepositoryDouble implements ReservationRepository {
         reservation.setTotal(BigDecimal.valueOf(400));
         return reservation;
     }
-
     private final ArrayList<Reservation> reservations = new ArrayList<>();
     public ReservationRepositoryDouble() {reservations.add(RESERVATION);}
 
+    //implementing ReservationRepository
     @Override
     public Reservation add(Reservation reservation) {
         return null;

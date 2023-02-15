@@ -90,7 +90,7 @@ public class ConsoleIO {
         }
     }
 
-    public boolean readBoolean(String prompt) {
+    public boolean readBoolean(String prompt) {//maybe get rid of this at the end, don't think I'll use it
         while (true) {
             String input = readRequiredString(prompt).toLowerCase();
             if (input.equals("y")) {

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.nio.file.Paths;
 import java.time.LocalDate;
@@ -21,6 +22,9 @@ public class ReservationFileRepository implements ReservationRepository {
 
     private static final String HEADER = "id,start_date,end_date,guest_id,total";
     private final String directory;
+    private String getFilePath(String hostId) {
+        return Paths.get(directory, hostId + ".csv").toString();
+    }
 
     public ReservationFileRepository(@Value("${ReservationDataDirectory:./data/reservations}") String directory) {
         this.directory = directory;
@@ -28,7 +32,16 @@ public class ReservationFileRepository implements ReservationRepository {
 
     @Override
     public Reservation add(Reservation reservation) throws DataException {
-        return null;
+        List<Reservation> hostReservations = findByHost(reservation.getHostId());
+        int nextId = getNextId(hostReservations);
+        reservation.setReservationId(nextId);
+
+        BigDecimal total = getTotal(reservation);
+        reservation.setTotal(total);
+
+        hostReservations.add(reservation);
+        writeToFile(hostReservations, reservation.getHostId());
+        return reservation;
     }
 
     @Override
@@ -39,10 +52,6 @@ public class ReservationFileRepository implements ReservationRepository {
     @Override
     public boolean cancel(String hostId, String reservationId) throws DataException {
         return false;
-    }
-
-    private String getFilePath(String hostId) {
-        return Paths.get(directory, hostId + ".csv").toString();
     }
 
     @Override
@@ -59,6 +68,46 @@ public class ReservationFileRepository implements ReservationRepository {
         } catch (IOException ex) {//don't throw
         }
         return result;
+    }
+
+    private int getNextId(List<Reservation> reservations) {
+        int maxId = 0;
+        for (Reservation reservation : reservations) {
+            if (maxId < reservation.getReservationId()) {
+                maxId = reservation.getReservationId();
+            }
+        }
+        return maxId + 1;
+    }
+
+    private BigDecimal getTotal(Reservation reservation) {//not finished
+        Host host = reservation.getHost();
+        BigDecimal standard = host.getStandardRate();
+        BigDecimal weekend = host.getWeekendRate();
+        LocalDate start = reservation.getStart();
+        LocalDate end = reservation.getEnd();
+        BigDecimal total = standard.add(weekend);
+        return total;
+    }
+
+    private void writeToFile(List<Reservation> reservations, String hostId) throws DataException {
+        try (PrintWriter writer = new PrintWriter(getFilePath(hostId))) {
+            writer.println(HEADER);
+            for (Reservation reservation : reservations) {
+                writer.println(serialize(reservation));
+            }
+        } catch (IOException ex) {
+            throw new DataException(ex);
+        }
+    }
+
+    private String serialize(Reservation reservation) {
+        return String.format("%s,%s,%s,%s,%s",
+                reservation.getReservationId(),
+                reservation.getStart(),
+                reservation.getEnd(),
+                reservation.getGuestId(),
+                reservation.getTotal());
     }
 
     private Reservation deserialize(String[] fields) {
