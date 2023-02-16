@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,8 +46,21 @@ public class ReservationService {
         }
         reservation.setGuest(guestRepository.findById(reservation.getGuestId()));
         reservation.setHost(hostRepository.findById(reservation.getHostId()));
-        reservation.setTotal(calculateTotal(reservation.getHostId(), reservation));
+        reservation.setTotal(calculateTotal(reservation));
         result.setPayload(reservationRepository.add(reservation));
+        return result;
+    }
+
+    public Result<Reservation> update(Reservation reservation) throws DataException {
+        Result<Reservation> result = validate(reservation);
+        if (reservation.getReservationId() == 0) {
+            result.addErrorMessage("Invalid reservation ID.");
+        }
+        if (!result.isSuccess()) {
+            return result;
+        }
+        reservation.setTotal(calculateTotal(reservation));
+        result.setPayload(reservationRepository.update(reservation));
         return result;
     }
 
@@ -80,17 +94,20 @@ public class ReservationService {
         LocalDate start = reservation.getStart();
         LocalDate end = reservation.getEnd();
         List<Reservation> reservations = reservationRepository.findByHost(reservation.getHostId());
+
         for (Reservation r : reservations) {
             LocalDate existingStart = r.getStart();
             LocalDate existingEnd = r.getEnd();
-            if (start.isEqual(existingStart)) {
-                result.addErrorMessage("Another reservation has the same start date.");
-            }
-            if (start.isBefore(existingStart) && end.isAfter(start)) {
-                result.addErrorMessage("The end date overlaps with another reservation.");
-            }
-            if (start.isAfter(existingStart) && start.isBefore(existingEnd)) {
-                result.addErrorMessage("The start date overlaps with another reservation.");
+            if (reservation.getReservationId() != r.getReservationId()) {
+                if (start.isEqual(existingStart)) {
+                    result.addErrorMessage("Another reservation has the same start date.");
+                }
+                if (start.isBefore(existingStart) && end.isAfter(start)) {
+                    result.addErrorMessage("The end date overlaps with another reservation.");
+                }
+                if (start.isAfter(existingStart) && start.isBefore(existingEnd)) {
+                    result.addErrorMessage("The start date overlaps with another reservation.");
+                }
             }
         }
     }
@@ -107,29 +124,26 @@ public class ReservationService {
         }
     }
 
-    public BigDecimal calculateTotal(String hostId, Reservation reservation) {
+    public BigDecimal calculateTotal(Reservation reservation) {
+        String hostId = reservation.getHostId();
         Host host = hostRepository.findById(hostId);
         BigDecimal standardRate = host.getStandardRate();
         BigDecimal weekendRate = host.getWeekendRate();//rates
 
         LocalDate start = reservation.getStart();
         LocalDate end = reservation.getEnd();
-        int nights = (int)Math.abs(DAYS.between(start, end));//nights and dates
+        int nights = (int)Math.abs(DAYS.between(start, end));//dates and nights
 
         ArrayList<LocalDate> weekNights = new ArrayList<>();
         ArrayList<LocalDate> weekendNights = new ArrayList<>();//lists to write to
 
-        LocalDate date = start.plusDays(1);
-        while ((date.getDayOfWeek() != DayOfWeek.FRIDAY
-                && date.getDayOfWeek() != DayOfWeek.SATURDAY) && date != end) {
-            weekNights.add(date);
-            date = date.plusDays(1);
-        }
-
-        date = start.plusDays(1);//reset date to start
-        while ((date.getDayOfWeek() == DayOfWeek.FRIDAY
-                || date.getDayOfWeek() == DayOfWeek.SATURDAY) && date != end) {
-            weekendNights.add(date);
+        LocalDate date = start;
+        for (int i = 0; i < nights; i++) {
+            if (date.getDayOfWeek() != DayOfWeek.FRIDAY && date.getDayOfWeek() != DayOfWeek.SATURDAY) {
+                weekNights.add(date);
+            } else {
+                weekendNights.add(date);
+            }
             date = date.plusDays(1);
         }
 

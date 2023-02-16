@@ -1,11 +1,14 @@
 package learn.dontwreckmyhouse.ui;
 
+import learn.dontwreckmyhouse.domain.Result;
 import learn.dontwreckmyhouse.models.Guest;
 import learn.dontwreckmyhouse.models.Host;
 import learn.dontwreckmyhouse.models.Reservation;
 import org.springframework.stereotype.Component;
 
+import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Component
@@ -14,6 +17,8 @@ public class View {
     public View(ConsoleIO io) {
         this.io = io;
     }
+
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
 
     public Menu selectMenuOption() {
         displayHeader("Administrator Menu");
@@ -49,6 +54,7 @@ public class View {
     }
 
     public String chooseHost(List<Host> hosts) {
+        io.println("Choose Host by State");
         if (hosts.size() == 0) {
             io.println("No hosts found.");
             return null;
@@ -62,12 +68,31 @@ public class View {
             io.println("More than 25 hosts found, showing first 25.");
         }
         io.println("0: Exit");
-        String message = String.format("Select a host by their index [0-%s]: ", index);
+        String message = String.format("Select host by index [0-%s]: ", index);
         index = io.readInt(message, 0, index);
         if (index <= 0) {
             return null;
         }
         return hosts.get(index - 1).getHostId();
+    }
+
+    public Reservation chooseReservation(List<Reservation> reservations) {
+        displayHeader("Choose Reservation");
+        if (reservations.size() == 0) {return null;}
+        displayReservations(reservations);
+        io.println("0: Exit");
+
+        String message = String.format("Select reservation by ID [0-%s]: ", reservations.size());
+        int reservationId = io.readInt(message, 0, reservations.size());
+        Reservation reservation = reservations.stream().filter(
+                r -> r.getReservationId() == reservationId)
+                .findFirst().orElse(null);
+
+        if (reservation == null) {
+            displayStatus(false, String.format(
+                    "No reservation with ID %s found for this host.", reservationId));
+        }
+        return reservation;
     }
 
     //full methods for CRUD
@@ -85,9 +110,20 @@ public class View {
         return r;
     }
 
+    public void update(Reservation reservation) {
+        LocalDate start = io.readLocalDateOptional("Start Date (" + formatter.format(reservation.getStart()) + "): ");
+        if (start != null) {
+            reservation.setStart(start);
+        }
+
+        LocalDate end = io.readLocalDateOptional("End Date (" + formatter.format(reservation.getEnd()) + "): ");
+        if (end != null) {
+            reservation.setEnd(end);
+        }
+    }
+
 
     //displays
-
     public void displayHeader(String message) {
         io.println("");
         io.println(message);
@@ -104,12 +140,12 @@ public class View {
             io.println("No reservations for this host.");
         }
         for (Reservation r : reservations) {
-            io.printf("%s: %s - %s, %s, $%s%n",
+            io.printf("%s: %s - %s, $%s, Guest ID: %s%n",
                     r.getReservationId(),
-                    r.getStart(),
-                    r.getEnd(),
-                    r.getGuestId(),
-                    r.getTotal());
+                    formatter.format(r.getStart()),
+                    formatter.format(r.getEnd()),
+                    r.getTotal().setScale(2, RoundingMode.HALF_UP),
+                    r.getGuestId());
         }
     }
 

@@ -20,8 +20,34 @@ public class ReservationRepositoryDouble implements ReservationRepository {
         reservation.setTotal(BigDecimal.valueOf(400));
         return reservation;
     }
+    public final static Reservation RESERVATION2 = makeReservationTwo();
+    private static Reservation makeReservationTwo() {
+        Reservation reservation = new Reservation();
+        reservation.setReservationId(2);
+        reservation.setStart(LocalDate.of(2023, 2, 23));
+        reservation.setEnd(LocalDate.of(2023, 2, 25));
+        reservation.setHostId(HostRepositoryDouble.HOST.getHostId());
+        reservation.setGuestId(GuestRepositoryDouble.GUEST.getGuestId());//663
+        reservation.setTotal(BigDecimal.valueOf(450));
+        return reservation;
+    }
+    public final static Reservation RESERVATION3 = makeReservationThree();
+    private static Reservation makeReservationThree() {
+        Reservation reservation = new Reservation();
+        reservation.setReservationId(3);
+        reservation.setStart(LocalDate.of(2023, 2, 25));
+        reservation.setEnd(LocalDate.of(2023, 2, 27));
+        reservation.setHostId(HostRepositoryDouble.HOST.getHostId());
+        reservation.setGuestId(GuestRepositoryDouble.GUEST.getGuestId());//663
+        reservation.setTotal(BigDecimal.valueOf(450));
+        return reservation;
+    }
     private final ArrayList<Reservation> reservations = new ArrayList<>();
-    public ReservationRepositoryDouble() {reservations.add(RESERVATION);}
+    public ReservationRepositoryDouble() {
+        reservations.add(RESERVATION);
+        reservations.add(RESERVATION2);
+        reservations.add(RESERVATION3);
+    }
 
     //implementing ReservationRepository
     @Override
@@ -30,8 +56,8 @@ public class ReservationRepositoryDouble implements ReservationRepository {
     }
 
     @Override
-    public boolean update(Reservation reservation) {
-        return false;
+    public Reservation update(Reservation reservation) {
+        return null;
     }
 
     @Override

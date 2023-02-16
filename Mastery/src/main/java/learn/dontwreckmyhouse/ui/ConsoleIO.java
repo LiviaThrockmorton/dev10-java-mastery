@@ -113,6 +113,18 @@ public class ConsoleIO {
         }
     }
 
+    public LocalDate readLocalDateOptional(String prompt) {
+        while (true) {
+            String input = readString(prompt);
+            try {
+                return LocalDate.parse(input, formatter);
+            } catch (DateTimeParseException ex) {
+                return null;
+                //println(INVALID_DATE);
+            }
+        }
+    }
+
     public BigDecimal readBigDecimal(String prompt) {
         while (true) {
             String input = readRequiredString(prompt);

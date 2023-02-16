@@ -45,7 +45,25 @@ class ReservationServiceTest {
         String hostId = "2e72f86c-b8fe-4265-b4f1-304dea8762db";
         int reservationId = 1;
         Reservation reservation = reservationRepository.findById(reservationId, hostId);
-        BigDecimal actual = service.calculateTotal(hostId, reservation);
+        BigDecimal actual = service.calculateTotal(reservation);
         assertEquals(BigDecimal.valueOf(400), actual);
+    }
+
+    @Test
+    void shouldCalculateWeekNightAndWeekendNight() throws DataException {
+        String hostId = "2e72f86c-b8fe-4265-b4f1-304dea8762db";
+        int reservationId = 2;
+        Reservation reservation = reservationRepository.findById(reservationId, hostId);
+        BigDecimal actual = service.calculateTotal(reservation);
+        assertEquals(BigDecimal.valueOf(450), actual);
+    }
+
+    @Test
+    void shouldCalculateWeekendToWeekDay() throws DataException {
+        String hostId = "2e72f86c-b8fe-4265-b4f1-304dea8762db";
+        int reservationId = 3;
+        Reservation reservation = reservationRepository.findById(reservationId, hostId);
+        BigDecimal actual = service.calculateTotal(reservation);
+        assertEquals(BigDecimal.valueOf(450), actual);
     }
 }

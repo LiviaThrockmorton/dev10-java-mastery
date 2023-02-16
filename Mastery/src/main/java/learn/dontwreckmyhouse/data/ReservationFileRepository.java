@@ -1,23 +1,17 @@
 package learn.dontwreckmyhouse.data;
 
-import learn.dontwreckmyhouse.models.Host;
 import learn.dontwreckmyhouse.models.Reservation;
-import learn.dontwreckmyhouse.data.HostRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.nio.file.Paths;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
-import static java.time.temporal.ChronoUnit.DAYS;
 
 @Repository
 public class ReservationFileRepository implements ReservationRepository {
@@ -43,8 +37,17 @@ public class ReservationFileRepository implements ReservationRepository {
     }
 
     @Override
-    public boolean update(Reservation reservation) throws DataException {
-        return false;
+    public Reservation update(Reservation reservation) throws DataException {
+        List<Reservation> reservations = findByHost(reservation.getHostId());
+        for (int i = 0; i < reservations.size(); i++) {
+            if ((reservations.get(i).getReservationId() == reservation.getReservationId())
+                && (reservations.get(i).getGuestId() == reservation.getGuestId())) {
+                reservations.set(i, reservation);
+                writeToFile(reservations, reservation.getHostId());
+                return reservation;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -111,7 +114,8 @@ public class ReservationFileRepository implements ReservationRepository {
         result.setStart(LocalDate.parse(fields[1]));
         result.setEnd(LocalDate.parse(fields[2]));
         result.setGuestId(Integer.parseInt(fields[3]));
-        result.setTotal(BigDecimal.valueOf(Integer.parseInt(fields[4])));
+        result.setTotal(new BigDecimal(fields[4]));
+        //result.setTotal(BigDecimal.valueOf(Integer.parseInt(fields[4])));
         return result;
     }
 }
