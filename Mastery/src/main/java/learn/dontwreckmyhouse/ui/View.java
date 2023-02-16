@@ -71,17 +71,18 @@ public class View {
     }
 
     //full methods for CRUD
-    public Reservation makeReservation() {
-       Reservation r = new Reservation();
+    public Reservation makeReservation(int guestId, String hostId) {
         displayHeader("Choose Start Date");
         LocalDate start = getDate();
+
         displayHeader("Choose End Date");
         LocalDate end = getDate();
-       r.setStart(start);
-       r.setEnd(end);
-       //r.setGuestId();
-       //r.setHostId();
-       return r;
+        Reservation r = new Reservation();
+        r.setStart(start);
+        r.setEnd(end);
+        r.setGuestId(guestId);
+        r.setHostId(hostId);
+        return r;
     }
 
 
@@ -109,6 +110,17 @@ public class View {
                     r.getEnd(),
                     r.getGuestId(),
                     r.getTotal());
+        }
+    }
+
+    public void displayStatus(boolean success, String message) {
+        displayStatus(success, List.of(message));
+    }
+
+    public void displayStatus(boolean success, List<String> messages) {
+        displayHeader(success ? "Success" : "Error");
+        for (String message : messages) {
+            io.println(message);
         }
     }
 }

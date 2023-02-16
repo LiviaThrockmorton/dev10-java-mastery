@@ -13,8 +13,8 @@ public class ReservationRepositoryDouble implements ReservationRepository {
     private static Reservation makeReservation() {
         Reservation reservation = new Reservation();
         reservation.setReservationId(1);
-        reservation.setStart(LocalDate.ofEpochDay(2023-10-10));
-        reservation.setEnd(LocalDate.ofEpochDay(2023-10-12));
+        reservation.setStart(LocalDate.of(2023, 10, 10));
+        reservation.setEnd(LocalDate.of(2023, 10, 12));
         reservation.setHostId(HostRepositoryDouble.HOST.getHostId());
         reservation.setGuestId(GuestRepositoryDouble.GUEST.getGuestId());//663
         reservation.setTotal(BigDecimal.valueOf(400));
@@ -44,5 +44,12 @@ public class ReservationRepositoryDouble implements ReservationRepository {
         return reservations.stream()
                 .filter(r -> r.getHostId().equals(hostId))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Reservation findById(int reservationId, String hostId) throws DataException {
+        return findByHost(hostId).stream().filter(
+                        i -> i.getReservationId() == reservationId)
+                .findFirst().orElse(null);
     }
 }

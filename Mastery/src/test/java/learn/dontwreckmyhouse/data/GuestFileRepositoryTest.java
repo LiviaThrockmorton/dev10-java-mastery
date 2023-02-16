@@ -17,7 +17,7 @@ class GuestFileRepositoryTest {
     static final String SEED_FILE_PATH = "./data/guests-seed.csv";
     static final String TEST_FILE_PATH = "./data/guests-test.csv";
 
-    GuestFileRepository repository = new GuestFileRepository();
+    GuestFileRepository repository = new GuestFileRepository(SEED_FILE_PATH);
 
     @BeforeEach
     void setupTest() throws IOException {
@@ -29,6 +29,6 @@ class GuestFileRepositoryTest {
     @Test
     void shouldFindAll() {
         List<Guest> guests = repository.findAll();
-        assertNull(guests);
+        assertEquals(1, guests.size());
     }
 }

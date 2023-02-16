@@ -21,14 +21,14 @@ class GuestServiceTest {
     @Test
     void shouldFindByEmail() {
         String email = "wkuhlie@patch.com";
-        Guest actual = service.findByEmail(email);
-        assertEquals("wkuhlie@patch.com", actual.getGuestEmail());
-        assertEquals("(704) 3740857", actual.getGuestPhone());
+        List<Guest> actual = service.findByEmail(email);
+        assertEquals("wkuhlie@patch.com", actual.get(0).getGuestEmail());
+        assertEquals("(704) 3740857", actual.get(0).getGuestPhone());
     }
 
     @Test
     void shouldNotFindByNullEmail() {
-        Guest actual = service.findByEmail(null);
-        assertNull(actual);
+        List<Guest> actual = service.findByEmail(null);
+        assertNull(actual.get(0));
     }
 }

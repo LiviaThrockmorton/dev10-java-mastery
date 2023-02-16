@@ -1,14 +1,11 @@
 package learn.dontwreckmyhouse.data;
 
 import learn.dontwreckmyhouse.models.Guest;
-import learn.dontwreckmyhouse.models.Host;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +36,8 @@ public class GuestFileRepository implements GuestRepository {
 
     @Override
     public Guest findById(int id) {
-        return null;
+        return findAll().stream().filter(
+                i -> i.getGuestId() == id).findFirst().orElse(null);
     }
 
     private Guest deserialize(String[] fields) {

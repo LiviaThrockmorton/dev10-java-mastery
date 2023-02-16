@@ -2,6 +2,7 @@ package learn.dontwreckmyhouse.data;
 
 import learn.dontwreckmyhouse.models.Host;
 import learn.dontwreckmyhouse.models.Reservation;
+import learn.dontwreckmyhouse.data.HostRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
@@ -11,11 +12,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.nio.file.Paths;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static java.time.temporal.ChronoUnit.DAYS;
 
 @Repository
 public class ReservationFileRepository implements ReservationRepository {
@@ -36,8 +38,7 @@ public class ReservationFileRepository implements ReservationRepository {
         int nextId = getNextId(hostReservations);
         reservation.setReservationId(nextId);
 
-        BigDecimal total = getTotal(reservation);
-        reservation.setTotal(total);
+        //reservation.setTotal(calculateTotal(reservation.getHostId(), reservation));
 
         hostReservations.add(reservation);
         writeToFile(hostReservations, reservation.getHostId());
@@ -70,6 +71,13 @@ public class ReservationFileRepository implements ReservationRepository {
         return result;
     }
 
+    @Override
+    public Reservation findById(int reservationId, String hostId) throws DataException {
+        return findByHost(hostId).stream().filter(
+                i -> i.getReservationId() == reservationId)
+                .findFirst().orElse(null);
+    }
+
     private int getNextId(List<Reservation> reservations) {
         int maxId = 0;
         for (Reservation reservation : reservations) {
@@ -78,16 +86,6 @@ public class ReservationFileRepository implements ReservationRepository {
             }
         }
         return maxId + 1;
-    }
-
-    private BigDecimal getTotal(Reservation reservation) {//not finished
-        Host host = reservation.getHost();
-        BigDecimal standard = host.getStandardRate();
-        BigDecimal weekend = host.getWeekendRate();
-        LocalDate start = reservation.getStart();
-        LocalDate end = reservation.getEnd();
-        BigDecimal total = standard.add(weekend);
-        return total;
     }
 
     private void writeToFile(List<Reservation> reservations, String hostId) throws DataException {

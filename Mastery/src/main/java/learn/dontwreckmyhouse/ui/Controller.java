@@ -4,12 +4,11 @@ import learn.dontwreckmyhouse.data.DataException;
 import learn.dontwreckmyhouse.domain.GuestService;
 import learn.dontwreckmyhouse.domain.HostService;
 import learn.dontwreckmyhouse.domain.ReservationService;
+import learn.dontwreckmyhouse.domain.Result;
 import learn.dontwreckmyhouse.models.Guest;
 import learn.dontwreckmyhouse.models.Host;
 import learn.dontwreckmyhouse.models.Reservation;
 import org.springframework.stereotype.Component;
-
-import java.time.LocalDate;
 import java.util.List;
 
 @Component
@@ -63,28 +62,32 @@ public class Controller {
 
     private void makeReservation() throws DataException {
         view.displayHeader(Menu.MAKE.getTitle());
+
         view.displayHeader("Choose Guest");
         String email = view.getEmail();
         List<Guest> guest = guestService.findByEmail(email);
-        int guestId = view.getGuest(guest);//guestId
+        int guestId = view.getGuest(guest);
         if (guestId == 0) {return;}
 
         view.displayHeader("Choose Host");
         String initials = view.getState();
         List<Host> hosts = hostService.findByState(initials);
-        String hostId = view.chooseHost(hosts);//hostId
+        String hostId = view.chooseHost(hosts);
         if (hostId == null) {return;}
+
         List<Reservation> reservations = reservationService.findByHost(hostId);
         view.displayHeader("Reservations");
         view.displayReservations(reservations);
         view.enterToContinue();
 
-        //get dates
-
-        //validate
-        //confirm
-        //make reservation
-        Reservation reservation = view.makeReservation();
+        Reservation reservation = view.makeReservation(guestId, hostId);
+        Result<Reservation> result = reservationService.make(reservation);
+        if (!result.isSuccess()) {
+            view.displayStatus(false, result.getErrorMessages());
+        } else {
+            String successMessage = String.format("Reservation %s created.", result.getPayload().getReservationId());
+            view.displayStatus(true, successMessage);
+        }
 
     }
 

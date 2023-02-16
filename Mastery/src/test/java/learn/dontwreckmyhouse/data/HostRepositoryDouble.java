@@ -5,6 +5,7 @@ import learn.dontwreckmyhouse.models.Host;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class HostRepositoryDouble implements HostRepository {
     //creating dummy data
@@ -32,5 +33,13 @@ public class HostRepositoryDouble implements HostRepository {
     @Override
     public List<Host> findAll() {
         return hosts;
+    }
+
+    @Override
+    public Host findById(String id) {
+        return findAll().stream()
+                .filter(i -> Objects.equals(i.getHostId(), id))
+                .findFirst()
+                .orElse(null);
     }
 }
