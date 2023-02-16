@@ -37,9 +37,6 @@ public class ReservationFileRepository implements ReservationRepository {
         List<Reservation> hostReservations = findByHost(reservation.getHostId());
         int nextId = getNextId(hostReservations);
         reservation.setReservationId(nextId);
-
-        //reservation.setTotal(calculateTotal(reservation.getHostId(), reservation));
-
         hostReservations.add(reservation);
         writeToFile(hostReservations, reservation.getHostId());
         return reservation;
