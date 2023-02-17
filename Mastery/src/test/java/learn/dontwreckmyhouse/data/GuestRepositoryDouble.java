@@ -28,9 +28,7 @@ public class GuestRepositoryDouble implements GuestRepository {
 
     @Override
     public Guest findById(int id) {
-        return findAll().stream()
-                .filter(i -> i.getGuestId() == id)
-                .findFirst()
-                .orElse(null);
+        return findAll().stream().filter(
+                i -> i.getGuestId() == id).findFirst().orElse(null);
     }
 }

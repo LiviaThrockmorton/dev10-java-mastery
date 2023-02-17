@@ -31,4 +31,17 @@ class HostFileRepositoryTest {
         List<Host> hosts = repository.findAll();
         assertEquals(1, hosts.size());
     }
+
+    @Test
+    void shouldFindById() {
+        Host host = repository.findById("test-2e72f86c-b8fe-4265-b4f1-304dea8762db");
+        assertNotNull(host);
+        assertEquals("kdeclerkdc@sitemeter.com", host.getHostEmail());
+    }
+
+    @Test
+    void shouldNotFindFakeId() {
+        Host host = repository.findById("sdfrt");
+        assertNull(host);
+    }
 }

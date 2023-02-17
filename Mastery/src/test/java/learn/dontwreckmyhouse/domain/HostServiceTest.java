@@ -32,4 +32,19 @@ class HostServiceTest {
         assertEquals(1, actual.size());
         assertEquals("Boise", actual.get(0).getHostCity());
     }
+
+    @Test
+    void shouldFindByCity() {
+        String city = "boise";
+        List<Host> actual = service.findByCity(city);
+        assertNotNull(actual);
+        assertEquals(1, actual.size());
+    }
+
+    @Test
+    void shouldNotFindDesMoines() {
+        String city = "Des Moines";
+        List<Host> actual = service.findByCity(city);
+        assertEquals(0, actual.size());
+    }
 }

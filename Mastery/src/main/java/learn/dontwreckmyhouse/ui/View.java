@@ -1,11 +1,9 @@
 package learn.dontwreckmyhouse.ui;
 
-import learn.dontwreckmyhouse.domain.Result;
 import learn.dontwreckmyhouse.models.Guest;
 import learn.dontwreckmyhouse.models.Host;
 import learn.dontwreckmyhouse.models.Reservation;
 import org.springframework.stereotype.Component;
-
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -37,6 +35,9 @@ public class View {
         return io.readRequiredString("State abbreviation: ");
     }
 
+    public String getCity() {return io.readRequiredString("City: ");
+    }
+
     public String getEmail() {return io.readRequiredString("Enter email: "); }
 
     public LocalDate getDate() {return io.readLocalDate("Enter in MM/dd/yyyy format: "); }
@@ -54,23 +55,21 @@ public class View {
     }
 
     public String chooseHost(List<Host> hosts) {
-        io.println("Choose Host by State");
         if (hosts.size() == 0) {
             io.println("No hosts found.");
             return null;
         }
         int index = 1;
-        for (Host h : hosts.stream().limit(25).toList()) {
+        for (Host h : hosts) {
             io.printf("%s: %s, %s %s %s%n", index++, h.getHostCity(), h.getHostState(), h.getHostEmail(), h.getHostLastName());
         }
-        index--;
-        if (hosts.size() > 25) {
-            io.println("More than 25 hosts found, showing first 25.");
-        }
+
         io.println("0: Exit");
+        index--;
         String message = String.format("Select host by index [0-%s]: ", index);
         index = io.readInt(message, 0, index);
         if (index <= 0) {
+            displayStatus(false, String.format("No hosts at index %s.", index));
             return null;
         }
         return hosts.get(index - 1).getHostId();
@@ -81,21 +80,21 @@ public class View {
         if (reservations.size() == 0) {return null;}
         displayReservations(reservations);
         io.println("0: Exit");
+        String message = String.format("Select reservation by index [0-%s]: ", reservations.size());
 
-        String message = String.format("Select reservation by ID [0-%s]: ", reservations.size());
-        int reservationId = io.readInt(message, 0, reservations.size());
+        int index = io.readInt(message, 0, reservations.size());
+        int reservationId = reservations.get(index).getReservationId();
         Reservation reservation = reservations.stream().filter(
                 r -> r.getReservationId() == reservationId)
                 .findFirst().orElse(null);
-
         if (reservation == null) {
             displayStatus(false, String.format(
                     "No reservation with ID %s found for this host.", reservationId));
         }
-        return reservation;
+        return reservations.get(index - 1);
     }
 
-    //full methods for CRUD
+    //CRUD
     public Reservation makeReservation(int guestId, String hostId) {
         displayHeader("Choose Start Date");
         LocalDate start = getDate();
@@ -122,6 +121,18 @@ public class View {
         }
     }
 
+    public boolean cancel(Reservation r) {
+        displayHeader("Confirmation");
+        io.printf("Reservation ID: %s, Guest ID: %s, %s - %s, $%s%n",
+                r.getReservationId(),
+                r.getGuestId(),
+                formatter.format(r.getStart()),
+                formatter.format(r.getEnd()),
+                r.getTotal().setScale(2, RoundingMode.HALF_UP));
+        String prompt = String.format("Are you sure you want to cancel reservation with ID: %s? [y/n]: ", r.getReservationId());
+        return io.readBoolean(prompt);
+    }
+
 
     //displays
     public void displayHeader(String message) {
@@ -139,13 +150,15 @@ public class View {
         if (reservations.size() == 0) {
             io.println("No reservations for this host.");
         }
+        int index = 1;
         for (Reservation r : reservations) {
-            io.printf("%s: %s - %s, $%s, Guest ID: %s%n",
+            io.printf("%s: Reservation ID: %s, Guest ID: %s, %s - %s, $%s%n",
+                    index++,
                     r.getReservationId(),
+                    r.getGuestId(),
                     formatter.format(r.getStart()),
                     formatter.format(r.getEnd()),
-                    r.getTotal().setScale(2, RoundingMode.HALF_UP),
-                    r.getGuestId());
+                    r.getTotal().setScale(2, RoundingMode.HALF_UP));
         }
     }
 

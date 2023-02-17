@@ -9,7 +9,6 @@ import learn.dontwreckmyhouse.models.Guest;
 import learn.dontwreckmyhouse.models.Host;
 import learn.dontwreckmyhouse.models.Reservation;
 import org.springframework.stereotype.Component;
-
 import java.math.RoundingMode;
 import java.util.List;
 
@@ -54,7 +53,15 @@ public class Controller {
         view.displayHeader(Menu.VIEW.getTitle());
         String initials = view.getState();
         List<Host> hosts = hostService.findByState(initials);
-        String hostId = view.chooseHost(hosts);
+        String hostId;
+        if (hosts.size() > 25) {
+            String city = view.getCity();
+            hosts = hostService.findByCity(city);
+            hostId = view.chooseHost(hosts);
+        } else {
+            hostId = view.chooseHost(hosts);
+        }
+
         if (hostId == null) {return;}
         List<Reservation> reservations = reservationService.findByHost(hostId);
         view.displayHeader("Reservations");
@@ -116,6 +123,28 @@ public class Controller {
         }
     }
 
-    private void cancelReservation() {
+    private void cancelReservation() throws DataException {
+        view.displayHeader(Menu.CANCEL.getTitle());
+
+        String initials = view.getState();
+        List<Host> hosts = hostService.findByState(initials);
+        String hostId = view.chooseHost(hosts);
+        if (hostId == null) {return;}
+        List<Reservation> reservations = reservationService.findByHost(hostId);
+        Reservation reservation = view.chooseReservation(reservations);
+        reservation.setHostId(hostId);
+
+        Result<Reservation> result;
+        if (view.cancel(reservation)) {
+            result = reservationService.cancel(reservation);
+        } else {return;}
+
+        if (!result.isSuccess()) {
+            view.displayStatus(false, result.getErrorMessages());
+        } else {
+            String successMessage = String.format("Reservation with ID: %s cancelled.",
+                    result.getPayload().getReservationId());
+            view.displayStatus(true, successMessage);
+        }
     }
 }

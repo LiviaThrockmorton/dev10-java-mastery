@@ -37,21 +37,30 @@ public class ReservationFileRepository implements ReservationRepository {
     }
 
     @Override
-    public Reservation update(Reservation reservation) throws DataException {
+    public boolean update(Reservation reservation) throws DataException {
         List<Reservation> reservations = findByHost(reservation.getHostId());
         for (int i = 0; i < reservations.size(); i++) {
             if ((reservations.get(i).getReservationId() == reservation.getReservationId())
                 && (reservations.get(i).getGuestId() == reservation.getGuestId())) {
                 reservations.set(i, reservation);
                 writeToFile(reservations, reservation.getHostId());
-                return reservation;
+                return true;
             }
         }
-        return null;
+        return false;
     }
 
     @Override
-    public boolean cancel(String hostId, String reservationId) throws DataException {
+    public boolean cancel(Reservation reservation) throws DataException {
+        List<Reservation> reservations = findByHost(reservation.getHostId());
+        for (int i = 0; i < reservations.size(); i++) {
+            if ((reservations.get(i).getReservationId() == reservation.getReservationId())
+                    && (reservations.get(i).getGuestId() == reservation.getGuestId())) {
+                reservations.remove(i);
+                writeToFile(reservations, reservation.getHostId());
+                return true;
+            }
+        }
         return false;
     }
 

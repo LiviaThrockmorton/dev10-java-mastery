@@ -31,4 +31,17 @@ class GuestFileRepositoryTest {
         List<Guest> guests = repository.findAll();
         assertEquals(1, guests.size());
     }
+
+    @Test
+    void shouldFindById() {
+        Guest guest = repository.findById(1);
+        assertNotNull(guest);
+        assertEquals("Sullivan", guest.getGuestFirstName());
+    }
+
+    @Test
+    void shouldNotFindFakeID() {
+        Guest guest = repository.findById(2);
+        assertNull(guest);
+    }
 }

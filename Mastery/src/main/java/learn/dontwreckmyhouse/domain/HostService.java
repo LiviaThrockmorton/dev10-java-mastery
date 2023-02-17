@@ -21,4 +21,10 @@ public class HostService {
                 .filter(i -> i.getHostState().equalsIgnoreCase(initials))
                 .collect(Collectors.toList());
     }
+
+    public List<Host> findByCity(String city) {
+        return hostRepository.findAll().stream()
+                .filter(i -> i.getHostCity().equalsIgnoreCase(city))
+                .collect(Collectors.toList());
+    }
 }

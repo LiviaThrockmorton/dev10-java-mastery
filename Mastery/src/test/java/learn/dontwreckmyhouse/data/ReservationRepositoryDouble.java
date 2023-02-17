@@ -52,16 +52,33 @@ public class ReservationRepositoryDouble implements ReservationRepository {
     //implementing ReservationRepository
     @Override
     public Reservation add(Reservation reservation) {
-        return null;
+        ((List<Reservation>) reservations).add(reservation);
+        return reservation;
     }
 
     @Override
-    public Reservation update(Reservation reservation) {
-        return null;
+    public boolean update(Reservation reservation) {
+        List<Reservation> all = reservations;
+        for (int i = 0; i< all.size(); i++) {
+            if ((reservations.get(i).getReservationId() == reservation.getReservationId())
+                && (reservations.get(i).getGuestId() == reservation.getGuestId())) {
+                all.set(i, reservation);
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
-    public boolean cancel(String hostId, String reservationId) {
+    public boolean cancel(Reservation reservation) throws DataException {
+        List<Reservation> all = reservations;
+        for (int i = 0; i< all.size(); i++) {
+            if ((reservations.get(i).getReservationId() == reservation.getReservationId())
+                    && (reservations.get(i).getGuestId() == reservation.getGuestId())) {
+                all.remove(i);
+                return true;
+            }
+        }
         return false;
     }
 
